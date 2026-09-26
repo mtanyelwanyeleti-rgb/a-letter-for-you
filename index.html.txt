@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Letter For You 💌</title>
+  <style>
+    /* ---------- RESET & BASE ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5e6c8;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(200, 30, 40, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(30, 60, 150, 0.06) 0%, transparent 50%);
+      font-family: 'Times New Roman', 'Georgia', 'Garamond', serif;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
+      position: relative;
+      perspective: 1200px;
+    }
+
+    /* Aged paper texture */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.07;
+      background-image: radial-gradient(circle, #000 1px, transparent 1px);
+      background-size: 7px 7px;
+    }
+
+    /* ---------- SCENE WRAPPER ---------- */
+    .scene {
+      position: relative;
+      width: min(92vw, 560px);
+      aspect-ratio: 1 / 0.72;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ---------- ENVELOPE ---------- */
+    .envelope {
+      position: absolute;
+      inset: 0;
+      background: #efe0c4;
+      border: 3px solid #1a1a2e;
+      box-shadow:
+        7px 7px 0 #1a1a2e,
+        12px 12px 0 rgba(193, 18, 31, 0.25);
+      cursor: pointer;
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+      transform-style: preserve-3d;
+    }
+
+    .envelope:hover {
+      transform: translateY(-4px);
+      box-shadow:
+        9px 11px 0 #1a1a2e,
+        15px 17px 0 rgba(193, 18, 31, 0.3);
+    }
+
+    /* Envelope inner paper texture */
+    .envelope::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(193, 18, 31, 0.25);
+      pointer-events: none;
+    }
+
+    /* ---------- FLAP (TOP) ---------- */
+    .flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 58%;
+      background: #e8d5b0;
+      border-bottom: 3px solid #1a1a2e;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top center;
+      transition: transform 0.8s cubic-bezier(0.6, -0.2, 0.3, 1.2);
+      z-index: 4;
+      backface-visibility: hidden;
+    }
+
+    .flap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 60%);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      pointer-events: none;
+    }
+
+    /* Wax seal */
+    .seal {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 68px;
+      height: 68px;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at 35% 30%, #e63946, #8b0000 75%);
+      border-radius: 50%;
+      border: 2px solid #4a0a10;
+      box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.35),
+        inset 0 2px 6px rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      color: #fff8e7;
+      z-index: 6;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      animation: sealPulse 2.6s infinite ease-in-out;
+    }
+
+    .seal::after {
+      content: "❤";
+      filter: drop-shadow(1px 1px 0 #4a0a10);
+    }
+
+    @keyframes sealPulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.07); }
+    }
+
+    /* ---------- LETTER (INSIDE) ---------- */
+    .letter {
+      position: absolute;
+      left: 5%;
+      top: 6%;
+      width: 90%;
+      height: 88%;
+      background: #fffaf0;
+      border: 2px solid #1a1a2e;
+      box-shadow: inset 0 0 0 3px #fffaf0, inset 0 0 0 5px rgba(193, 18, 31, 0.18);
+      padding: 2rem 1.8rem;
+      z-index: 3;
+      transform: translateY(18%);
+      opacity: 0;
+      pointer-events: none;
+      transition:
+        transform 0.9s cubic-bezier(0.25, 1, 0.35, 1),
+        opacity 0.7s ease;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .letter::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.05;
+      background-image: radial-gradient(circle, #000 1px, transparent 1px);
+      background-size: 6px 6px;
+    }
+
+    .letter-content {
+      position: relative;
+      z-index: 1;
+      text-align: left;
+    }
+
+    .letter-body {
+      font-size: clamp(0.85rem, 3.1vw, 0.98rem);
+      line-height: 1.7;
+      color: #2b2230;
+      margin-bottom: 0.8rem;
+      white-space: pre-line;
+    }
+
+    .letter-body p {
+      margin-bottom: 0.7rem;
+    }
+
+    .letter-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .letter-heart {
+      display: inline-block;
+      animation: heartBeat 1.3s ease-in-out infinite;
+      filter: drop-shadow(1px 1px 0 #1a1a2e);
+    }
+
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      30% { transform: scale(1.22); }
+      55% { transform: scale(1.06); }
+      75% { transform: scale(1.15); }
+    }
+
+    /* ---------- OPEN STATE ---------- */
+    .scene.open .flap {
+      transform: rotateX(-180deg);
+      z-index: 1;
+    }
+
+    .scene.open .seal {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.4) rotate(35deg);
+      pointer-events: none;
+    }
+
+    .scene.open .letter {
+      transform: translateY(-4%);
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 5;
+    }
+
+    .scene.open .envelope {
+      cursor: default;
+    }
+
+    /* ---------- HINT ---------- */
+    .hint {
+      position: absolute;
+      bottom: -3.2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1rem;
+      font-style: italic;
+      color: #6a5a4a;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+      transition: opacity 0.4s ease;
+      z-index: 7;
+      text-align: center;
+    }
+
+    .scene.open ~ .hint,
+    .scene.open .hint {
+      opacity: 0;
+    }
+
+    /* ---------- FLOATING DECOR ---------- */
+    .decor {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      opacity: 0.09;
+    }
+
+    .decor span {
+      position: absolute;
+      color: #1a1a2e;
+      font-size: 2.2rem;
+      animation: floatUp 20s infinite linear;
+      user-select: none;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0.05; }
+      100% { transform: translateY(-15vh) rotate(360deg); opacity: 0.35; }
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 420px) {
+      .scene {
+        aspect-ratio: 1 / 0.88;
+      }
+      .letter {
+        padding: 1.4rem 1.1rem;
+      }
+      .seal {
+        width: 54px;
+        height: 54px;
+        font-size: 1.3rem;
+      }
+      .hint {
+        font-size: 0.85rem;
+        bottom: -2.8rem;
+      }
+      .letter-body {
+        font-size: 0.78rem;
+        line-height: 1.65;
+      }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.2s !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- floating decorative elements -->
+  <div class="decor" aria-hidden="true">
+    <span style="left: 6%; animation-duration: 24s; animation-delay: 0s;">❤</span>
+    <span style="left: 22%; animation-duration: 28s; animation-delay: 3s;">✉</span>
+    <span style="left: 44%; animation-duration: 22s; animation-delay: 6s;">❤</span>
+    <span style="left: 68%; animation-duration: 26s; animation-delay: 1s;">✉</span>
+    <span style="left: 84%; animation-duration: 30s; animation-delay: 8s;">❤</span>
+    <span style="left: 94%; animation-duration: 25s; animation-delay: 4s;">✉</span>
+  </div>
+
+  <!-- envelope scene -->
+  <div class="scene" id="scene">
+    <!-- the letter inside -->
+    <div class="letter" id="letter">
+      <div class="letter-content">
+        <div class="letter-body">
+Hey , I never thought the first Iove letter I write to you would be a goodbye letter. Hopefully it still expresses how much I love you.
+From the first day I met you we clicked ,in more ways than one. Ever since I always wanted to be around you. Looking back you’ve grown as a person. I am proud of the person you’ve become and the person you’re becoming. I know you’ll be very successful and RICH!!!!! I wish you an educational journey to that success and riches. 
+I’m forever grateful you trusted me with your heart and I hope I handled it well. Thank you for all the efforts you put in , whether it’s efforts I saw or efforts you put in behind closed doors. I appreciate every invitation to your room I genuinely felt like I was at home and not only because of the cooking but you made it comfortable for me to be myself (aka jumping around your room).
+Thank you for :all the forehead kisses 
+Every intimate moment 
+Every risk to khapha me home 
+Every advice 
+Every I love you 
+Every goodnight 
+Every good morning 
+Every moment we shared singing higher 
+Every call with fentse 
+Every call during the fifa games
+And finally thank you , you loved me 🤍
+
+And the iconic lines : 
+Goodnight and Goodmorning for every goodnight and Goodmorning I can’t say 
+I love you for every time you don’t feel loved 
+You got this for every time you feel discouraged and down 
+Take it easy for every time you feel overwhelmed 
+And cherish Palesa ,your Mom , Onthatile and Ma letti they got your back , they who you got fr  
+
+Goodbye , I love you ❤️
+        </div>
+      </div>
+    </div>
+
+    <!-- the envelope -->
+    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Open the letter">
+      <div class="flap"></div>
+      <div class="seal" aria-hidden="true"></div>
+    </div>
+
+    <div class="hint" id="hint">tap the envelope to open 💌</div>
+  </div>
+
+  <script>
+    (function () {
+      const scene = document.getElementById('scene');
+      const envelope = document.getElementById('envelope');
+      const hint = document.getElementById('hint');
+
+      let opened = false;
+
+      function openLetter() {
+        if (opened) return;
+        opened = true;
+        scene.classList.add('open');
+        hint.style.opacity = '0';
+
+        // gentle scroll into view on small screens
+        setTimeout(() => {
+          scene.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 350);
+      }
+
+      // click to open
+      envelope.addEventListener('click', openLetter);
+
+      // keyboard accessibility (Enter / Space)
+      envelope.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openLetter();
+        }
+      });
+
+      // auto-hide hint after a while
+      setTimeout(() => {
+        if (!opened) hint.style.opacity = '0.45';
+      }, 6000);
+    })();
+  </script>
+</body>
+</html>
